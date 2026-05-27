@@ -13,7 +13,11 @@ import queue
 import os
 import sys
 
-#region Settings
+# there is an known issue with pyttsx3 2.90 on Windows where it can cause crashes. Downgrading to 2.71 seems to fix it:
+# pip uninstall pyttsx3
+# pip install pyttsx3==2.71
+
+#region Prep
 #-----------------------------
 # Settings
 #-----------------------------
@@ -100,8 +104,6 @@ def detect_keywords(text):
 
     return found
 
-#endregion
-
 engine = pyttsx3.init()
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1.0)   
@@ -130,6 +132,7 @@ def listen_for_wakeword():
             if score > WAKE_THRESHOLD:
                 print(f"\nWake word detected! Score: {score:.2f}")
                 return
+#endregion
 
 try:
     while True:
