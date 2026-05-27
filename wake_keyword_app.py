@@ -7,13 +7,32 @@ from scipy.io.wavfile import write
 from openwakeword.model import Model
 import openwakeword
 from faster_whisper import WhisperModel
+import pyttsx3
+import threading
+import queue
+import os
+import sys
 
+#region Settings
+#-----------------------------
+# Settings
+#-----------------------------
 WAKE_WORD = "hey jarvis" # Try: "hey jarvis", "alexa", "hey mycroft"
 WAKE_THRESHOLD = 0.5
 
 KEYWORDS = [
     "start",
     "stop",
+    'open',
+    'close',
+    'turn on',
+    'turn off',
+    'play',
+    'pause',
+    'next',
+    'previous',
+    'hold',
+    'fetch',
 ]
     
 SAMPLE_RATE = 16000
@@ -22,6 +41,10 @@ COMMAND_SECONDS = 4 # record this many seconds after wake word
 
 openwakeword.utils.download_models()
 print("downloading openwakeword models if needed..")
+
+#-----------------------------
+# Setup
+#-----------------------------
 
 wake_model = Model(wakeword_models=[WAKE_WORD])
 
@@ -34,8 +57,12 @@ whisper_model = WhisperModel(
     compute_type="int8"
 )
 
+#-----------------------------
+# Functions
+#----------------------------- 
+
 def record_command(seconds=COMMAND_SECONDS):
-    print(f"Listening for command for {seconds} seconds...")
+    # print(f"Listening for command for {seconds} seconds...")
     audio = sd.rec(
         int(seconds * SAMPLE_RATE),
         samplerate=SAMPLE_RATE,
@@ -73,15 +100,19 @@ def detect_keywords(text):
 
     return found
 
+#endregion
 
-# -----------------------------
-# Main loop
-# -----------------------------
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)
+engine.setProperty('volume', 1.0)   
 
-print(f"Listening for wake word: '{WAKE_WORD}'")
-print("Press Ctrl+C to stop.")
+def say(text):
+    engine.say(text)
+    engine.runAndWait()
 
-try:
+def listen_for_wakeword():
+    print(f"Listening for wake word: '{WAKE_WORD}'")
+
     with sd.InputStream(
         channels=1,
         samplerate=SAMPLE_RATE,
@@ -98,20 +129,38 @@ try:
 
             if score > WAKE_THRESHOLD:
                 print(f"\nWake word detected! Score: {score:.2f}")
+                return
 
-                command_audio = record_command()
-                text = transcribe_audio(command_audio)
+try:
+    while True:
+        listen_for_wakeword()
 
-                print(f"You said: {text}")
+        # The wake-word InputStream is now closed.
+        time.sleep(0.5)
+        say("Yes Yes?")
 
-                keywords = detect_keywords(text)
+        time.sleep(0.3)
 
-                if keywords:
-                    print(f"Detected keywords: {keywords}")
-                else:
-                    print("No keyword detected.")
+        command_audio = record_command()
+        text = transcribe_audio(command_audio)
 
-                print(f"\nListening again for wake word: '{WAKE_WORD}'")
+        keywords = detect_keywords(text)
+
+        if keywords:
+            print(f"Detected keywords: {keywords}")
+            say(f"Ok, I will {keywords[0]}.")
+        else:
+            print("No keyword detected.")
+            say("Sorry, I didn't understand.")
+
+        # Small cooldown before listening again
+        time.sleep(1.0)
+
+        # Optional: reset openWakeWord internal state
+        try:
+            wake_model.reset()
+        except AttributeError:
+            pass
 
 except KeyboardInterrupt:
     print("\nStopped.")
