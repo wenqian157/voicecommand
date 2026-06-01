@@ -17,28 +17,27 @@ import sys
 # pip uninstall pyttsx3
 # pip install pyttsx3==2.71
 
+WAKE_WORD = "hey jarvis" # Try: "hey jarvis", "alexa", "hey mycroft"
+WAKE_THRESHOLD = 0.5
+
+KEYWORDS = {
+    "start": ["start", "begin", "commence"],
+    "stop": ["stop", "halt", "end"],
+    "open": ["open", "unlock"],
+    "close": ["close", "shut", "lock"],
+    "turn on": ["turn on", "activate", "enable"],
+    "turn off": ["turn off", "deactivate", "disable"],
+    "play": ["play", "resume"],
+    "pause": ["pause", "hold"],
+    "next": ["next", "skip"],
+    "previous": ["previous", "back"],
+    'fetch': ['fetch', 'get', 'bring']
+}
 #region Prep
 #-----------------------------
 # Settings
 #-----------------------------
-WAKE_WORD = "hey jarvis" # Try: "hey jarvis", "alexa", "hey mycroft"
-WAKE_THRESHOLD = 0.5
 
-KEYWORDS = [
-    "start",
-    "stop",
-    'open',
-    'close',
-    'turn on',
-    'turn off',
-    'play',
-    'pause',
-    'next',
-    'previous',
-    'hold',
-    'fetch',
-]
-    
 SAMPLE_RATE = 16000
 WAKE_FRAME_SIZE = 1280
 COMMAND_SECONDS = 4 # record this many seconds after wake word
@@ -56,7 +55,7 @@ print("Loading Whisper model...")
 # tiny.en is fast and small for English.
 # Use "base.en" for better accuracy but slower.
 whisper_model = WhisperModel(
-    "tiny.en",
+    "base.en",
     device="cpu",
     compute_type="int8"
 )
@@ -93,14 +92,14 @@ def transcribe_audio(audio):
     text = " ".join(segment.text for segment in segments).strip()
     return text
 
-
 def detect_keywords(text):
     text_lower = text.lower()
     found = []
 
-    for keyword in KEYWORDS:
-        if keyword.lower() in text_lower:
-            found.append(keyword)
+    for intent, phrases in KEYWORDS.items():
+        for phrase in phrases:
+            if phrase in text_lower:
+                found.append(intent)
 
     return found
 
@@ -138,24 +137,23 @@ try:
     while True:
         listen_for_wakeword()
 
-        # The wake-word InputStream is now closed.
-        time.sleep(0.5)
-        say("Yes Yes?")
-
         time.sleep(0.3)
+        say("Yes Yes?")
 
         command_audio = record_command()
         text = transcribe_audio(command_audio)
 
-        keywords = detect_keywords(text)
+        print(f"you said: {text}")
 
+        # keyword 
+        keywords = detect_keywords(text)
+        
         if keywords:
-            print(f"Detected keywords: {keywords}")
+            print(f"Detected keywords: {keywords[0]}")
             say(f"Ok, I will {keywords[0]}.")
         else:
             print("No keyword detected.")
             say("Sorry, I didn't understand.")
-
         # Small cooldown before listening again
         time.sleep(1.0)
 
