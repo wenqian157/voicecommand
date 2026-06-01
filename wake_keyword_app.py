@@ -1,5 +1,4 @@
 import time
-import wave
 import tempfile
 import numpy as np
 import sounddevice as sd
@@ -8,10 +7,6 @@ from openwakeword.model import Model
 import openwakeword
 from faster_whisper import WhisperModel
 import pyttsx3
-import threading
-import queue
-import os
-import sys
 
 # there is an known issue with pyttsx3 2.90 on Windows where it can cause crashes. Downgrading to 2.71 seems to fix it:
 # pip uninstall pyttsx3
