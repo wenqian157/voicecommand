@@ -7,10 +7,13 @@ from openwakeword.model import Model
 import openwakeword
 from faster_whisper import WhisperModel
 import pyttsx3
+import socket
 
 # there is an known issue with pyttsx3 2.90 on Windows where it can cause crashes. Downgrading to 2.71 seems to fix it:
 # pip uninstall pyttsx3
 # pip install pyttsx3==2.71
+
+# client send voice commands 
 
 WAKE_WORD = "hey jarvis" # Try: "hey jarvis", "alexa", "hey mycroft"
 WAKE_THRESHOLD = 0.5
@@ -32,6 +35,11 @@ KEYWORDS = {
 #-----------------------------
 # Settings
 #-----------------------------
+
+HOST = "127.0.0.1"
+PORT = 5005
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 SAMPLE_RATE = 16000
 WAKE_FRAME_SIZE = 1280
@@ -146,6 +154,8 @@ try:
         if keywords:
             print(f"Detected keywords: {keywords[0]}")
             say(f"Ok, I will {keywords[0]}.")
+            sock.sendto(keywords[0].encode("utf-8"), (HOST, PORT))
+            print(f"Sent command '{keywords[0]}' to robot.")
         else:
             print("No keyword detected.")
             say("Sorry, I didn't understand.")
