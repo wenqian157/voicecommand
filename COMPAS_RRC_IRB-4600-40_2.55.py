@@ -111,7 +111,7 @@ if __name__ == '__main__':
     # for i in range(4):
     #     abb.send(rrc.MoveToFrame(frame_print_next[i], speed_print, rrc.Zone.FINE, rrc.Motion.LINEAR))
     # Move robot to end position
-    abb.send(rrc.MoveToJoints(frame_print_end, external_axis_dummy, speed, rrc.Zone.FINE))
+    abb.send(rrc.MoveToFrame(frame_print_start, speed, rrc.Zone.FINE))
 
     # Print Text
     done = abb.send_and_wait(rrc.PrintText('Compas_RRC Example finish.'))

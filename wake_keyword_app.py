@@ -106,13 +106,13 @@ def detect_keywords(text):
 
     return found
 
-engine = pyttsx3.init()
-engine.setProperty('rate', 150)
-engine.setProperty('volume', 1.0)   
+# engine = pyttsx3.init()
+# engine.setProperty('rate', 150)
+# engine.setProperty('volume', 1.0)   
 
-def say(text):
-    engine.say(text)
-    engine.runAndWait()
+# def say(text):
+#     engine.say(text)
+#     engine.runAndWait()
 
 def listen_for_wakeword():
     print(f"Listening for wake word: '{WAKE_WORD}'")
@@ -142,7 +142,7 @@ try:
         listen_for_wakeword()
 
         time.sleep(0.3)
-        say("Yes Yes?")
+        # say("Yes Yes?")
 
         command_audio = record_command()
         text = transcribe_audio(command_audio)
@@ -154,12 +154,12 @@ try:
         
         if keywords:
             print(f"Detected keywords: {keywords[0]}")
-            say(f"Ok, I will {keywords[0]}.")
+            # say(f"Ok, I will {keywords[0]}.")
             sock.sendto(keywords[0].encode("utf-8"), (HOST, PORT))
             print(f"Sent command '{keywords[0]}' to robot.")
         else:
             print("No keyword detected.")
-            say("Sorry, I didn't understand.")
+            # say("Sorry, I didn't understand.")
         # Small cooldown before listening again
         time.sleep(1.0)
 
