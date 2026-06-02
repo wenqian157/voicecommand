@@ -136,6 +136,7 @@ def listen_for_wakeword():
                 return
 #endregion
 
+
 try:
     while True:
         listen_for_wakeword()
