@@ -7,13 +7,13 @@ import socket
 
 if __name__ == '__main__':
 
-#region prep
+
     HOST = "127.0.0.1"
-    PORT = 5005
+    PORT = 5006
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((HOST, PORT))
-
+#region prep
     # Create Ros Client
     ros = rrc.RosClient()
     ros.run()
@@ -68,16 +68,12 @@ if __name__ == '__main__':
     max_tcp = 2500  # Unit [mm/s]
     abb.send(rrc.SetMaxSpeed(override, max_tcp))
 
-    # Reset signals 
-    abb.send(rrc.SetDigital('do_X',0))
-    abb.send(rrc.SetDigital('do_Y',0))
-    abb.send(rrc.SetDigital('do_Z',0))
 
-    # Set tool
-    abb.send(rrc.SetTool(print_tool))
+    # # Set tool
+    # abb.send(rrc.SetTool(print_tool))
 
     # Set work object
-    abb.send(rrc.SetWorkObject('ob_RRC_Workplace'))
+    # abb.send(rrc.SetWorkObject('ob_RRC_Workplace'))
 
     # User message -> basic settings send to robot
     print('Tool, Wobj, Acc and MaxSpeed sent to robot')
@@ -112,9 +108,10 @@ if __name__ == '__main__':
                 print("\nSocket Closed.")
                 break
         n += 1
-
+    # for i in range(4):
+    #     abb.send(rrc.MoveToFrame(frame_print_next[i], speed_print, rrc.Zone.FINE, rrc.Motion.LINEAR))
     # Move robot to end position
-    abb.send(rrc.MoveToJoints(robot_joints_end_position, external_axis_dummy, speed, rrc.Zone.FINE))
+    abb.send(rrc.MoveToJoints(frame_print_end, external_axis_dummy, speed, rrc.Zone.FINE))
 
     # Print Text
     done = abb.send_and_wait(rrc.PrintText('Compas_RRC Example finish.'))

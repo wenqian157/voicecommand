@@ -37,7 +37,7 @@ KEYWORDS = {
 #-----------------------------
 
 HOST = "127.0.0.1"
-PORT = 5005
+PORT = 5006
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
